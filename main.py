@@ -1,5 +1,5 @@
 import os
-from telegram import Update
+from telegram import Update, Bot
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
                           CallbackContext)
 import configparser
@@ -17,7 +17,9 @@ def main():
     # Load your token and create an Updater for your Bot
     config = configparser.ConfigParser()
     config.read('config.ini')
-    updater = Updater(token=config['TELEGRAM']['ACCESS_TOKEN'], use_context=True)
+    token = config['TELEGRAM']['ACCESS_TOKEN']
+    # telegram_bot = Bot(token)
+    updater = Updater(token=token, use_context=True)
     dispatcher = updater.dispatcher
 
     service_account_key = config.get('FIREBASE', 'SERVICE_ACCOUNT_KEY')
@@ -55,11 +57,11 @@ def main():
     updater.idle()
 
 
-def echo(update, context):
-    reply_message = update.message.text.upper()
-    logging.info("Update: " + str(update))
-    logging.info("context: " + str(context))
-    context.bot.send_message(chat_id=update.effective_chat.id, text=reply_message)
+# def echo(update, context):
+#     reply_message = update.message.text.upper()
+#     logging.info("Update: " + str(update))
+#     logging.info("context: " + str(context))
+#     context.bot.send_message(chat_id=update.effective_chat.id, text=reply_message)
 
 
 def handle_user_input(update, context):
@@ -81,7 +83,7 @@ def search_parking(update, context):
     api_key = "AIzaSyD4rxqPhTz5wCaEfbamZkvrcu6uU6SMqyE"
     url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
     user_address = update.message.text.replace('/address', '').strip()
-    geolocator = Nominatim(user_agent="my_chatbot")
+    geolocator = Nominatim(user_agent="My First Project")
     location = geolocator.geocode(user_address)
     user_location = f"{location.latitude},{location.longitude}"
 
@@ -113,7 +115,7 @@ def search_parking(update, context):
             response = f"parking: {name}, parking lot location: {address}"
             context.bot.send_message(chat_id=update.effective_chat.id, text=response)
     else:
-        response = "There's no parking within one kilometer of here."
+        response = "There's no parking within two kilometers of here."
         context.bot.send_message(chat_id=update.effective_chat.id, text=response)
 
 
