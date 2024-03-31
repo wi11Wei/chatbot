@@ -15,15 +15,17 @@ from firebase_admin import db
 
 def main():
     # Load your token and create an Updater for your Bot
-    config = configparser.ConfigParser()
-    config.read('config.ini')
-    token = config['TELEGRAM']['ACCESS_TOKEN']
+    # config = configparser.ConfigParser()
+    # config.read('config.ini')
+    token = os.environ['TELEGRAM_ACCESS_TOKEN']
     # telegram_bot = Bot(token)
     updater = Updater(token=token, use_context=True)
     dispatcher = updater.dispatcher
 
-    service_account_key = config.get('FIREBASE', 'SERVICE_ACCOUNT_KEY')
-    database_url = config.get('FIREBASE', 'DATABASE_URL')
+    service_account_key = os.environ['FIREBASE_SERVICE_ACCOUNT_KEY']
+    # service_account_key = config.get('FIREBASE', 'SERVICE_ACCOUNT_KEY')
+    # database_url = config.get('FIREBASE', 'DATABASE_URL')
+    database_url = os.environ['FIREBASE_DATABASE_URL']
     cred = credentials.Certificate(service_account_key)
     firebase_admin.initialize_app(cred, {
         'databaseURL': database_url
@@ -48,7 +50,7 @@ def main():
 
     # dispatcher for chatgpt
 
-    chatgpt = HKBU_ChatGPT(config)
+    chatgpt = HKBU_ChatGPT()
     chatgpt_handler = MessageHandler(Filters.text & (~Filters.command), handle_user_input)
     dispatcher.add_handler(chatgpt_handler)
 
@@ -80,8 +82,8 @@ def get_location(update, context):
 
 
 def search_parking(update, context):
-    api_key = "AIzaSyD4rxqPhTz5wCaEfbamZkvrcu6uU6SMqyE"
-    url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
+    api_key = os.environ['API_KEY_GOOGLE']
+    url = os.environ['URL_GOOGLE']
     user_address = update.message.text.replace('/address', '').strip()
     geolocator = Nominatim(user_agent="My First Project")
     location = geolocator.geocode(user_address)
